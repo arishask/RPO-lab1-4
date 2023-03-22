@@ -30,10 +30,6 @@ target_include_directories(laba1 PUBLIC
         /Users/arinaaskhabova/AndroidStudioProjects/libs/spdlog/spdlog/include)
 # Declares and names the project.
 
-
-
-
-
 find_library(
         log-lib
         log)
