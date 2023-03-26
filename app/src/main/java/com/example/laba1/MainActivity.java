@@ -15,10 +15,6 @@ import com.example.laba1.databinding.ActivityMainBinding;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 
-interface TransactionEvents {
-    String enterPin(int ptc, String amount);
-}
-
 public class MainActivity extends AppCompatActivity implements TransactionEvents {
 
     public native String stringFromJNI();
@@ -68,18 +64,9 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
 
     public void onButtonClick(View v)
     {
-        new Thread(()-> {
-            try {
-                byte[] trd = stringToHex("9F0206000000000100");
-                boolean ok = transaction(trd);
-                runOnUiThread(()-> {
-                    Toast.makeText(MainActivity.this, ok ? "ok" : "failed", Toast.LENGTH_SHORT).show();
-                });
+        byte[] trd = stringToHex("9F0206000000000100");
+        boolean ok = transaction(trd);
 
-            } catch (Exception ex) {
-                // todo: log error
-            }
-        }).start();
 
 //        Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show();
 //        byte[] key = stringToHex("0123456789ABCDEF0123456789ABCDE0");
@@ -119,5 +106,13 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
         }
         return hex;
     }
+
+    @Override
+    public void transactionResult(boolean result) {
+        runOnUiThread(()-> {
+            Toast.makeText(MainActivity.this, result ? "ok" : "failed", Toast.LENGTH_SHORT).show();
+        });
+    }
+
 
 }
