@@ -3,6 +3,7 @@ package com.example.laba1;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -14,6 +15,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.laba1.databinding.ActivityMainBinding;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import org.apache.commons.io.IOUtils;
 
 public class MainActivity extends AppCompatActivity implements TransactionEvents {
 
@@ -64,10 +70,10 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
 
     public void onButtonClick(View v)
     {
-        byte[] trd = stringToHex("9F0206000000000100");
-        boolean ok = transaction(trd);
 
-
+        testHttpClient();
+//        byte[] trd = stringToHex("9F0206000000000100");
+//        boolean ok = transaction(trd);
 //        Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show();
 //        byte[] key = stringToHex("0123456789ABCDEF0123456789ABCDE0");
 //        byte[] enc = encrypt(key, stringToHex("000000000000000102"));
@@ -112,6 +118,39 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
         runOnUiThread(()-> {
             Toast.makeText(MainActivity.this, result ? "ok" : "failed", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    protected void testHttpClient()
+    {
+        new Thread(() -> {
+            try {
+                HttpURLConnection uc = (HttpURLConnection)
+                        (HttpURLConnection) (new URL("http://10.0.2.2:8081/api/v1/title").openConnection());
+                InputStream inputStream = uc.getInputStream();
+                String html = IOUtils.toString(inputStream);
+                String title = getPageTitle(html);
+                runOnUiThread(() ->
+                {
+                    Toast.makeText(this, title, Toast.LENGTH_LONG).show();
+                });
+
+            } catch (Exception ex) {
+                Log.e("fapptag", "Http client fails", ex);
+            }
+        }).start();
+    }
+
+    protected String getPageTitle(String html)
+    {
+        int pos = html.indexOf("<title");
+        String p="not found";
+        if (pos >= 0)
+        {
+            int pos2 = html.indexOf("<", pos + 1);
+            if (pos >= 0)
+                p = html.substring(pos + 7, pos2);
+        }
+        return p;
     }
 
 
